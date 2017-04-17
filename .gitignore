@@ -1,0 +1,10 @@
+# Git Ignore File for Newer
+
+# Common Temporary or Ignorable Files
+.*.swp
+*.bak
+
+# Built Files
+
+*.exe
+*.obj
