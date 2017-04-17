@@ -8,9 +8,9 @@ another.
 #include <sys/stat.h>
 
 char usage[] =
-"newer:  Determine if one file is newer than another.\n"
-"usage:  newer <file1> <file2>\n"
-"ver  :  v1.0, 2003-07-24\n"
+"ftimecomp: Determine if one file is newer than another.\n"
+"usage:     ftimecomp <file1> <file2>\n"
+"version:   v1.0.1\n"
 "\n"
 "    This tool returns 0 if file1 is newer than file2, otherwise it will\n"
 "    return 1.\n\n";
