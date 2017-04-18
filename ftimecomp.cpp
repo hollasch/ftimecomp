@@ -7,44 +7,53 @@ another.
 #include <stdio.h>
 #include <sys/stat.h>
 
-char usage[] =
-"ftimecomp: Determine if one file is newer than another.\n"
+static const char usage[] =
+"Compare the modification times of two files.\n"
 "usage:     ftimecomp <file1> <file2>\n"
-"version:   v1.0.1\n"
+"version:   v2.0.0\n"
 "\n"
-"    This tool returns 0 if file1 is newer than file2, otherwise it will\n"
-"    return 1.\n\n";
-
-
-time_t GetModTime (const char *toolname, const char *filename);
+"    This tool examines the modification times of file1 and file2. It returns 1\n"
+"    if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both\n"
+"    files have the same modification times.\n";
 
 
 
-int main (int argc, char *argv[])
-{
-    if (argc != 3)
-    {
-        fputs (usage, stdout);
-        return 255;
-    }
-
-    time_t time1 = GetModTime (argv[0], argv[1]);
-    time_t time2 = GetModTime (argv[0], argv[2]);
-
-    return (time1 > time2) ? 0 : 1;
+void errorExit (const char *message) {
+    // Print error message and exit.
+    fprintf (stderr, "ftimecomp: %s\n", message);
+    exit (255);
 }
 
 
+time_t GetModTime (const char *filename) {
 
-time_t GetModTime (const char *toolname, const char *filename)
-{
+    // This function returns the modification time 
+
     struct _stat stat;
 
     if (0 == _stat(filename, &stat))
         return stat.st_mtime;
 
-    fprintf (stderr, "%s: Couldn't get status of \"%s\".\n",
-             toolname, filename);
+    char errMessage[1024];
+    sprintf_s (errMessage, "Couldn't get status of \"%s\".", filename);
+    errorExit (errMessage);
 
-    exit (255);
+    return 0;
+}
+
+
+int main (int argc, char *argv[]) {
+
+    if (argc != 3)
+        errorExit (usage);
+
+    time_t time1 = GetModTime (argv[1]);
+    time_t time2 = GetModTime (argv[2]);
+
+    if (time1 < time2)
+        return 2;
+    else if (time2 < time1)
+        return 1;
+    else
+        return 0;
 }
