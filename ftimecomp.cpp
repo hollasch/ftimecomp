@@ -8,9 +8,9 @@ another.
 #include <sys/stat.h>
 
 static const char usage[] =
-"Compare the modification times of two files.\n"
+"ftimecomp: Compare the modification times of two files.\n"
+"version:   v2.0.0, https://github.com/hollasch/ftimecomp/\n"
 "usage:     ftimecomp <file1> <file2>\n"
-"version:   v2.0.0\n"
 "\n"
 "    This tool examines the modification times of file1 and file2. It returns 1\n"
 "    if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both\n"
