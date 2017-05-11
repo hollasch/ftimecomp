@@ -1,8 +1,10 @@
 `ftimecomp` — A file modification time comparison tool for the Windows command line
 ===================================================================================
 
-## v2.1.0  (*In Progress*)
-  - New command-line options?
+## v2.1.0-beta  (*In Progress*)
+  - New `--handle-missing` option.
+  - Supports `-h`, `--help`, `-?`, and `/?` switches to print usage information.
+  - Unicode support in progress.
 
 ## v2.0.0  (2017-04-17)
   - Converted to Visual Studio project from original makefile
