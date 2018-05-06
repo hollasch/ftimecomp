@@ -10,6 +10,7 @@ another.
 #include <sys/stat.h>
 
 static const char usage[] =
+"\n"
 "ftimecomp: Compare the modification times of two files.\n"
 "version:   v2.1.0-beta, https://github.com/hollasch/ftimecomp/\n"
 "usage:     ftimecomp [-h|--help] [-m|--handle-missing] <file1> <file2>\n"
@@ -47,15 +48,20 @@ bool strEqualIgnoreCase (const char *a, const char *b) {
 
 
 
-void errorExit (const char *message) {
-    // Print error message and exit. If the message is null, then print usage information.
+void errorExit (const char *message, bool printUsage = false) {
+    // Print error message and optionally the usage information, and exit. This routine always
+    // prints usage information if the message is null. If there was an error message, this
+    // exits the program with an exit code of 255, otherwise it exits with a zero exit code.
 
-    if (!message) {
-        fprintf (stderr, usage);
-    } else {
-        fprintf (stderr, "ftimecomp: %s\n", message);
+    if (message) {
+        fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
     }
-    exit (255);
+
+    if (!message || printUsage) {
+        fprintf (stderr, usage);
+    }
+
+    exit (message ? 255 : 0);
 }
 
 
@@ -104,18 +110,18 @@ void processOptions (int argc, char *argv[]) {
            || strEqualIgnoreCase(option, "h")
            || strEqualIgnoreCase(option, "-help")
            ) {
-            errorExit (usage);
+            errorExit (nullptr, usage);
         } else if (strEqualIgnoreCase(option, "-handle-missing")) {
             handleMissingFiles = true;
         } else {
             sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
-            errorExit (errMessage);
+            errorExit (errMessage, true);
         }
     }
 
     // Ensure that we got at least two files to compare.
     if (fileCount < 2) {
-        errorExit ("Expected two file names.");
+        errorExit ("Expected two file names.", true);
     }
 }
 
