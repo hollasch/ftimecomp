@@ -9,36 +9,49 @@ another.
 #include <ctype.h>
 #include <sys/stat.h>
 
-static const char usage[] =
-"\n"
-"ftimecomp: Compare the modification times of two files.\n"
-"version:   v2.1.0-beta, https://github.com/hollasch/ftimecomp/\n"
-"usage:     ftimecomp [-h|--help] [-m|--handle-missing] <file1> <file2>\n"
-"\n"
-"    This tool examines the modification times of file1 and file2. It returns 1\n"
-"    if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both\n"
-"    files have the same modification times.\n"
-"\n"
-"    -h, --help\n"
-"        Print help information.\n"
-"\n"
-"    -m, --handle-missing\n"
-"        With this switch, a missing file is considered to be older than any\n"
-"        existing file. If both files are missing, they compare the same.\n"
-;
+static const char usage[] = R"(
+ftimecomp: Compare the modification times of two files.
+version:   v2.1.0 / 2018-06-10 / https://github.com/hollasch/ftimecomp/
+usage:     ftimecomp [-h|--help]
+                     [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
+                     <file1> <file2>
 
-static char *fileName1;                    // Name of first file to compare
-static char *fileName2;                    // Name of second file to compare
-static auto  handleMissingFiles = false;   // If true, missing file appears maximally old
+    This tool examines the modification times of file1 and file2. It returns 1
+    if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both
+    files have the same modification times.
+
+    -h, --help
+        Print help information.
+
+    -n, --print-newer
+        Print the newer of the two files. Cannot be specified with --print-older.
+
+    -o, --print-older
+        Print the older of the two files. Cannot be specifeid with --print-newer.
+
+    -m, --missing-ok
+        With this switch, a missing file is considered to be older than any
+        existing file. If both files are missing, they compare the equal in age.
+)";
+
+namespace {
+    char *fileName1;            // Name of first file to compare
+    char *fileName2;            // Name of second file to compare
+    bool  missingIsOld = false; // If true, missing file appears maximally old
+    bool  printNewer = false;   // True => print newer of the two files
+    bool  printOlder = false;   // True => print older of the two files
+}
 
 
+//--------------------------------------------------------------------------------------------------
 bool strEqualIgnoreCase (const char *a, const char *b) {
-    // This function returns true if both strings compare as equal, ignoring case.
+    // This function returns true if both strings compare as equal, ignoring case. Note that this
+    // is not a great implementation, since we should really be using foldcase for best language
+    // tolerance. However, we're just using it for command option parsing, so it's ok for this use.
 
-    if (!a || !b)
-        return a == b;
+    if (!a || !b) return a == b;
 
-    while (*a && *b && tolower(*a) == tolower(*b)) {
+    while (*a && *b && toupper(*a) == toupper(*b)) {
         ++a;
         ++b;
     }
@@ -47,24 +60,21 @@ bool strEqualIgnoreCase (const char *a, const char *b) {
 }
 
 
-
+//--------------------------------------------------------------------------------------------------
 void errorExit (const char *message, bool printUsage = false) {
     // Print error message and optionally the usage information, and exit. This routine always
     // prints usage information if the message is null. If there was an error message, this
     // exits the program with an exit code of 255, otherwise it exits with a zero exit code.
 
-    if (message) {
-        fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
-    }
+    if (message) fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
 
-    if (!message || printUsage) {
-        fprintf (stderr, usage);
-    }
+    if (!message || printUsage) fprintf (stderr, usage);
 
     exit (message ? 255 : 0);
 }
 
 
+//--------------------------------------------------------------------------------------------------
 time_t GetModTime (const char *filename) {
     // This function returns the modification time of the given file. If the global
     // handleMissingFiles flag is set, then missing files return a time of 0.
@@ -74,7 +84,7 @@ time_t GetModTime (const char *filename) {
     if (0 == _stat(filename, &stat))
         return stat.st_mtime;
 
-    if (handleMissingFiles)
+    if (missingIsOld)
         return 0;
 
     char errMessage[1024];
@@ -85,6 +95,7 @@ time_t GetModTime (const char *filename) {
 }
 
 
+//--------------------------------------------------------------------------------------------------
 void processOptions (int argc, char *argv[]) {
     // Process the command-line options.
 
@@ -93,51 +104,94 @@ void processOptions (int argc, char *argv[]) {
 
     for (auto argi = 1;  argi < argc;  ++argi) {
 
-        // Handle file names (non-switches).
-        if ((argv[argi][0] != '-') && (argv[argi][0] != '/')) {
+        auto c0 = argv[argi][0];
+        auto c1 = argv[argi][1];
+
+        // Handle Windows "/?" or "/H" or "/h" options.
+        if (c0 == '/' && (c1 == '?' || c1 == 'h' || c1 == 'H'))
+            errorExit (nullptr, usage);
+
+        if (c0 != '-') {
+            // Handle file names (non-switches).
             ++fileCount;
             if (fileCount == 1)
                 fileName1 = argv[argi];
             else if (fileCount == 2)
                 fileName2 = argv[argi];
             continue;
-        }
+        } else if (c1 != '-') {
+            // Single-dash options
+            switch (toupper(c1)) {
+                case '?':
+                case 'H':
+                    errorExit (nullptr, usage);
+                    break;
 
-        auto option = argv[argi] + 1;    // Option keyword
+                case 'M':
+                    missingIsOld = true;
+                    break;
 
-        // Parse options by keyword.
-        if (  strEqualIgnoreCase(option, "?")
-           || strEqualIgnoreCase(option, "h")
-           || strEqualIgnoreCase(option, "-help")
-           ) {
-            errorExit (nullptr, usage);
-        } else if (strEqualIgnoreCase(option, "-handle-missing")) {
-            handleMissingFiles = true;
+                case 'N':
+                    printNewer = true;
+                    break;
+
+                case 'O':
+                    printOlder = true;
+                    break;
+
+                default:
+                    sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
+                    errorExit (errMessage, true);
+                    break;
+            }
         } else {
-            sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
-            errorExit (errMessage, true);
+            // Double-dash options
+
+            auto option = argv[argi] + 2;
+            if (strEqualIgnoreCase(option, "help"))
+                errorExit (nullptr, usage);
+            else if (strEqualIgnoreCase(option, "missing-ok"))
+                missingIsOld = true;
+            else if (strEqualIgnoreCase(option, "print-newer"))
+                printNewer = true;
+            else if (strEqualIgnoreCase(option, "print-older"))
+                printOlder = true;
+            else {
+                sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
+                errorExit (errMessage, true);
+            }
         }
     }
 
-    // Ensure that we got at least two files to compare.
-    if (fileCount < 2) {
-        errorExit ("Expected two file names.", true);
-    }
+    // Ensure that we got at exactly two files to compare.
+    if (fileCount != 2)
+        errorExit ("Expected exactly two file names.", true);
+
+    if (printNewer && printOlder)
+        errorExit ("Cannot specify both --print-newer and --print-older.", true);
 }
 
 
-int main (int argc, char *argv[]) {
-
+//--------------------------------------------------------------------------------------------------
+int main (int argc, char *argv[])
+{
     processOptions (argc, argv);
 
     time_t time1 = GetModTime (fileName1);
     time_t time2 = GetModTime (fileName2);
 
-    if (time1 > time2)    // File 1 is newer
-        return 1;
+    char* printName;
+    int   retCode = (time1 == time2) ? 0 : ((time1 > time2) ? 1 : 2);
 
-    if (time2 > time1)    // File 2 is newer
-        return 2;
+    if (retCode == 1) {
+        // File 1 is newer
+        printName = printNewer ? fileName1 : (printOlder ? fileName2 : nullptr);
+    } else if (retCode == 2) {
+        // File 2 is newer
+        printName = printNewer ? fileName2 : (printOlder ? fileName1 : nullptr);
+    }
 
-    return 0;             // Both files have the same modification time
+    if (printName) puts(printName);
+
+    return retCode;
 }

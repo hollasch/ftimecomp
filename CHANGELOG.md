@@ -4,9 +4,10 @@ CHANGE LOG - `ftimecomp`
 Unreleased  (In Progress)
 ----------------------------------------------------------------------------------------------------
 ### Added
-  - New `--handle-missing` option.
+  - New `-m/--missing-ok` option.
+  - New `-n/--print-newer` option.
+  - New `-o/--print-older` option.
   - Supports `-h`, `--help`, `-?`, and `/?` switches to print usage information.
-  - Unicode support in progress.
 
 
 v2.0.0  (2017-04-17)
