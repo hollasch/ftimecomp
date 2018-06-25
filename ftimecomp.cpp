@@ -11,7 +11,7 @@ another.
 
 static const char usage[] = R"(
 ftimecomp: Compare the modification times of two files.
-version:   v2.1.0 / 2018-06-10 / https://github.com/hollasch/ftimecomp/
+version:   v2.1.1 / 2018-06-24 / https://github.com/hollasch/ftimecomp/
 usage:     ftimecomp [-h|--help]
                      [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
                      <file1> <file2>
@@ -68,7 +68,7 @@ void errorExit (const char *message, bool printUsage = false) {
 
     if (message) fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
 
-    if (!message || printUsage) fprintf (stderr, usage);
+    if (!message || printUsage) fputs (usage, stdout);
 
     exit (message ? 255 : 0);
 }
