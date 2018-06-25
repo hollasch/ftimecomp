@@ -11,10 +11,11 @@ another.
 
 static const char usage[] = R"(
 ftimecomp: Compare the modification times of two files.
-version:   v2.1.1 / 2018-06-24 / https://github.com/hollasch/ftimecomp/
-usage:     ftimecomp [-h|--help]
-                     [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
-                     <file1> <file2>
+v2.1.1 / 2018-06-24 / https://github.com/hollasch/ftimecomp/
+
+usage: ftimecomp [-h|--help]
+                 [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
+                 <file1> <file2>
 
     This tool examines the modification times of file1 and file2. It returns 1
     if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both
