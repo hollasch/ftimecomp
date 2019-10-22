@@ -1,13 +1,3 @@
-# Git Ignore File for Newer
+# Git ignore rules for ftimecomp
 
-# Common Temporary or Ignorable Files
-.*.swp
-*.bak
-
-# Built Files
-
-x64/
-
-# Visual Studio Files
-.vs/
-*.vcxproj.user
+/build/
