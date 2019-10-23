@@ -28,7 +28,7 @@ usage: ftimecomp [-h|--help]
         Print the newer of the two files. Cannot be specified with --print-older.
 
     -o, --print-older
-        Print the older of the two files. Cannot be specifeid with --print-newer.
+        Print the older of the two files. Cannot be specified with --print-newer.
 
     -m, --missing-ok
         With this switch, a missing file is considered to be older than any
