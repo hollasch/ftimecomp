@@ -9,13 +9,14 @@ another.
 #include <ctype.h>
 #include <sys/stat.h>
 
-static const char usage[] = R"(
-ftimecomp: Compare the modification times of two files.
-v2.1.1 / 2018-06-24 / https://github.com/hollasch/ftimecomp/
 
-usage: ftimecomp [-h|--help]
-                 [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
-                 <file1> <file2>
+const auto version = "v2.2.0-alpha  2020-05-23  https://github.com/hollasch/ftimecomp/";
+
+const char usage[] = R"(
+ftimecomp: compare the modification times of two files.
+usage:     ftimecomp [-h|--help] [-v|--version]
+                     [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
+                     <file1> <file2>
 
     This tool examines the modification times of file1 and file2. It returns 1
     if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both
@@ -24,17 +25,22 @@ usage: ftimecomp [-h|--help]
     -h, --help
         Print help information.
 
+    -v, --version
+        Print version information.
+
     -n, --print-newer
-        Print the newer of the two files. Cannot be specified with --print-older.
+        Print the newer of the two files. Cannot be used with --print-older.
 
     -o, --print-older
-        Print the older of the two files. Cannot be specified with --print-newer.
+        Print the older of the two files. Cannot be used with --print-newer.
 
     -m, --missing-ok
         With this switch, a missing file is considered to be older than any
         existing file. If both files are missing, they compare the equal in age.
 )";
 
+
+//--------------------------------------------------------------------------------------------------
 namespace {
     char *fileName1;            // Name of first file to compare
     char *fileName2;            // Name of second file to compare
@@ -67,9 +73,13 @@ void errorExit (const char *message, bool printUsage = false) {
     // prints usage information if the message is null. If there was an error message, this
     // exits the program with an exit code of 255, otherwise it exits with a zero exit code.
 
-    if (message) fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
+    if (message)
+        fprintf (stderr, "%sftimecomp: Error: %s\n", (printUsage ? "\n" : ""), message);
 
-    if (!message || printUsage) fputs (usage, stdout);
+    if (!message || printUsage) {
+        puts (usage);
+        puts (version);
+    }
 
     exit (message ? 255 : 0);
 }
@@ -140,6 +150,10 @@ void processOptions (int argc, char *argv[]) {
                     printOlder = true;
                     break;
 
+                case 'V':
+                    puts(version);
+                    exit(0);
+
                 default:
                     sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
                     errorExit (errMessage, true);
@@ -157,7 +171,10 @@ void processOptions (int argc, char *argv[]) {
                 printNewer = true;
             else if (strEqualIgnoreCase(option, "print-older"))
                 printOlder = true;
-            else {
+            else if (strEqualIgnoreCase(option, "version")) {
+                puts(version);
+                exit(0);
+            } else {
                 sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
                 errorExit (errMessage, true);
             }
