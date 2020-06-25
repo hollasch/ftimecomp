@@ -35,8 +35,7 @@ usage:     ftimecomp [-h|--help] [-v|--version]
         Print the older of the two files. Cannot be used with --print-newer.
 
     -m, --missing-ok
-        With this switch, a missing file is considered to be older than any
-        existing file. If both files are missing, they compare the equal in age.
+        Missing items are ok, and are considered older then existing ones.
 )";
 
 
