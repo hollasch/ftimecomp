@@ -14,28 +14,28 @@ const auto version = "ftimecomp v2.2.0-alpha | 2021-04-22 | https://github.com/h
 
 const char usage[] = R"(
 ftimecomp: compare the modification times of two files.
-usage:     ftimecomp [-h|--help] [-v|--version]
-                     [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
+usage    : ftimecomp [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
+                     [-h|--help] [--version]
                      <file1> <file2>
 
     This tool examines the modification times of file1 and file2. It returns 1
     if file1 is newer than file2, 2 if file2 is newer than file1, and 0 if both
     files have the same modification times.
 
-    -h, --help
+    --help, -h
         Print help information.
 
-    -v, --version
-        Print version information.
+    --missing-ok, -m
+        Missing items are ok, and are considered older then existing ones.
 
-    -n, --print-newer
+    --print-newer, -n
         Print the newer of the two files. Cannot be used with --print-older.
 
-    -o, --print-older
+    --print-older, -o
         Print the older of the two files. Cannot be used with --print-newer.
 
-    -m, --missing-ok
-        Missing items are ok, and are considered older then existing ones.
+    --version
+        Print version information.
 )";
 
 
@@ -148,10 +148,6 @@ void processOptions (int argc, char *argv[]) {
                 case 'O':
                     printOlder = true;
                     break;
-
-                case 'V':
-                    puts(version);
-                    exit(0);
 
                 default:
                     sprintf_s (errMessage, "Unrecognized command option (%s).", argv[argi]);
