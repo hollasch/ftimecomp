@@ -10,7 +10,7 @@ another.
 #include <sys/stat.h>
 
 
-const auto version = "v2.2.0-alpha  2020-05-23  https://github.com/hollasch/ftimecomp/";
+const auto version = "ftimecomp v2.2.0-alpha | 2021-04-22 | https://github.com/hollasch/ftimecomp";
 
 const char usage[] = R"(
 ftimecomp: compare the modification times of two files.
