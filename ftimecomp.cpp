@@ -26,7 +26,7 @@ usage    : ftimecomp [-m|--missing-ok] [-n|--print-newer] [-o|--print-older]
         Print help information.
 
     --missing-ok, -m
-        Missing items are ok, and are considered older then existing ones.
+        Missing items are ok, and are considered older than existing ones.
 
     --print-newer, -n
         Print the newer of the two files. Cannot be used with --print-older.
